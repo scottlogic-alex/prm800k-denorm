@@ -1,6 +1,6 @@
 from typing import TypedDict, Optional, Any, Literal, List, TypeAlias
 
-FinishReason: TypeAlias = Literal['solution', 'give_up']
+FinishReason: TypeAlias = Literal['solution', 'give_up', 'found_error']
 
 class Question(TypedDict):
     problem: str

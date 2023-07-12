@@ -31,7 +31,7 @@ def make_telescoping_conversation(conversation: PRMRecord) -> Generator[Sample, 
         is_last: bool = step is conversation['label']['steps'][-1]
         is_solution: bool = is_last and conversation['label']['finish_reason'] == 'solution'
         if step['chosen_completion'] is None and step['human_completion'] is None:
-            assert conversation['label']['finish_reason'] == 'give_up'
+            assert conversation['label']['finish_reason'] in {'give_up', 'found_error'}
             raise GiveUp
         preferred_completion: Completion = step['human_completion'] if step['chosen_completion'] is None else step['completions'][step['chosen_completion']]
         is_human_response: bool = preferred_completion is step['human_completion']
@@ -57,8 +57,9 @@ def make_critiques(conversation: PRMRecord) -> Generator[CritiqueSample, None, N
         is_last: bool = step is conversation['label']['steps'][-1]
         has_solution: bool = is_last and conversation['label']['finish_reason'] == 'solution'
         preferred_completion: Completion = step['human_completion'] if step['chosen_completion'] is None else step['completions'][step['chosen_completion']]
-        preferred_completion_text: str = preferred_completion['text']
-        steps.append(preferred_completion_text)
+        if preferred_completion is not None:
+            preferred_completion_text: str = preferred_completion['text']
+            steps.append(preferred_completion_text)
         completions: List[Completion] = step['completions'] if step['human_completion'] is None else [
             *step['completions'],
             step['human_completion']
