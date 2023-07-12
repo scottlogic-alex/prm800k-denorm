@@ -74,11 +74,11 @@ if __name__ == '__main__':
         data_stem = Path(data_file).stem
         in_path_jsonl: Path = data_dir.joinpath(data_file)
 
-        out_all: Path = out_dir.joinpath(f'{data_stem}.parquet')
+        out_all: Path = out_dir.joinpath(f'{data_stem}.stepwise-best.parquet')
         out_all.unlink(missing_ok=True)
-        out_answer_only: Path = out_dir.joinpath(f'{data_stem}.answer_only.parquet')
+        out_answer_only: Path = out_dir.joinpath(f'{data_stem}.solutions-only.parquet')
         out_answer_only.unlink(missing_ok=True)
-        out_critique: Path = out_dir.joinpath(f'{data_stem}.critique.parquet')
+        out_critique: Path = out_dir.joinpath(f'{data_stem}.stepwise-critique.parquet')
         out_critique.unlink(missing_ok=True)
 
         with (open(in_path_jsonl, 'r') as file,
