@@ -21,27 +21,91 @@ The dataset is semantic, so that you can template it into your prompt style howe
 
 In total, the datasets are:
 
-- Solutions only
+- [Solutions only](https://huggingface.co/datasets/Birchlabs/openai-prm800k-solutions-only)
   - phase 1
     - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_train-solutions-only)
     - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_test-solutions-only)
   - phase 2
     - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_train-solutions-only)
     - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_test-solutions-only)
-- Stepwise best
+- [Stepwise best](https://huggingface.co/datasets/Birchlabs/openai-prm800k-stepwise-best)
   - phase 1
     - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_train-stepwise-best)
     - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_test-stepwise-best)
   - phase 2
     - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_train-stepwise-best)
     - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_test-stepwise-best)
-- Stepwise critique
+- [Stepwise critic](https://huggingface.co/datasets/Birchlabs/openai-prm800k-stepwise-critic)
   - phase 1
     - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_train-stepwise-critique)
     - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_test-stepwise-critique)
   - phase 2
     - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_train-stepwise-critique)
     - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_test-stepwise-critique)
+
+_You probably just want one of the three combined datasets rather than one of the twelve per-phase splits._
+
+## Loading a dataset
+
+You can load a dataset and iterate through it, like so:
+
+```python
+from datasets import load_dataset, DatasetDict, Dataset
+# dd: DatasetDict = load_dataset("Birchlabs/openai-prm800k-solutions-only")
+# dd: DatasetDict = load_dataset("Birchlabs/openai-prm800k-stepwise-best")
+dd: DatasetDict = load_dataset("Birchlabs/openai-prm800k-stepwise-critic")
+
+d: Dataset = dd['train']
+
+prompt_template = """Below is an instruction that describes a task. Write a response that appropriately completes the request. Show your reasoning step-by-step, and indicate your final answer under a heading titled Answer.
+
+### Instruction:
+{instruction}
+
+### Response:
+{response_history}"""
+
+answer_template = """{response}
+
+# Answer:
+{answer}"""
+
+for record in zip(
+  d['instruction'],
+  d['responses'],
+  d['next_response'],
+  d['answer'],
+  d['is_human_response'],
+  d['is_solution'],
+  d['is_preferred_response'],
+  d['rating']
+):
+  instruction, responses, next_response, answer, is_human_response, is_solution, is_preferred_response, rating = record
+  prompt = prompt_template.format(
+    instruction=instruction,
+    response_history=''.join((f'{response}\n' for response in responses)),
+  )
+  completion=next_response if answer is None else answer_template.format(response=next_response, answer=answer)
+  print(f'Prompt:\n<{prompt}>')
+  print(f'Completion:\n<{completion}>')
+```
+
+It should print something like:
+
+```
+Prompt:
+<Below is an instruction that describes a task. Write a response that appropriately completes the request. Show your reasoning step-by-step, and indicate your final answer under a heading titled Answer.
+
+### Instruction:
+How many seconds are in 7.8 minutes?
+
+### Response:
+>
+Completion:
+<7.8 minutes is the same as 7 minutes and 0.8 minutes.>
+```
+
+## Dataset description
 
 ### Solutions only
 
