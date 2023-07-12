@@ -1,1 +1,2 @@
-webdataset>=0.2.48
+pyarrow
+pandas

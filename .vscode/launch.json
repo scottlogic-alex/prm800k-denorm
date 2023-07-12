@@ -6,6 +6,13 @@
       "request": "launch",
       "module": "scripts.convert",
       "justMyCode": false
+    },
+    {
+      "name": "Python: Read",
+      "type": "python",
+      "request": "launch",
+      "module": "scripts.read",
+      "justMyCode": false
     }
   ]
 }
