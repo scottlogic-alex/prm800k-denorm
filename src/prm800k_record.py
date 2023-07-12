@@ -1,4 +1,6 @@
-from typing import TypedDict, Optional, Any, Literal, List
+from typing import TypedDict, Optional, Any, Literal, List, TypeAlias
+
+FinishReason: TypeAlias = Literal['solution', 'give_up']
 
 class Question(TypedDict):
     problem: str
@@ -21,7 +23,7 @@ class Step(TypedDict):
     chosen_completion: Optional[int]
 
 class Label(TypedDict):
-    finish_reason: Literal['solution', 'give_up']
+    finish_reason: FinishReason
     total_time: int
     steps: List[Step]
 
