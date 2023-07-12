@@ -22,7 +22,10 @@ class CritiqueSample(NamedTuple):
 
 class GiveUp(Exception): ...
 
-answer_delimiter = '\n\n# Answer\n\n'
+class Malformed(Exception): ...
+
+answer_section = '# Answer\n\n'
+answer_delimiter = f'\n\n{answer_section}'
 
 def make_telescoping_conversation(conversation: PRMRecord) -> Generator[Sample, None, None]:
     instruction: str = conversation['question']['problem']
@@ -31,14 +34,20 @@ def make_telescoping_conversation(conversation: PRMRecord) -> Generator[Sample, 
         is_last: bool = step is conversation['label']['steps'][-1]
         is_solution: bool = is_last and conversation['label']['finish_reason'] == 'solution'
         if step['chosen_completion'] is None and step['human_completion'] is None:
-            assert conversation['label']['finish_reason'] in {'give_up', 'found_error'}
-            raise GiveUp
+            if conversation['label']['finish_reason'] in {'give_up', 'found_error'}:
+                raise GiveUp
+            else:
+                raise Malformed(f"No solution was chosen, and yet finish_reason was neither 'give_up' nor 'found_error', finish_reason was: {conversation['label']['finish_reason']}")
         preferred_completion: Completion = step['human_completion'] if step['chosen_completion'] is None else step['completions'][step['chosen_completion']]
         is_human_response: bool = preferred_completion is step['human_completion']
         completion_text: str = preferred_completion['text']
         if is_solution:
-            assert answer_delimiter in completion_text
-            next_response, answer = completion_text.split(answer_delimiter, maxsplit=1)
+            if completion_text.startswith(answer_section):
+                next_response, answer = '', completion_text[len(answer_section):]
+            else:
+                if answer_delimiter not in completion_text:
+                    raise Malformed(f'answer_delimiter <{answer_delimiter}> not detected in completion: <{completion_text}>')
+                next_response, answer = completion_text.split(answer_delimiter, maxsplit=1)
         else:
             next_response, answer = completion_text, None
         steps.append(next_response)
@@ -64,6 +73,8 @@ def make_critiques(conversation: PRMRecord) -> Generator[CritiqueSample, None, N
             *step['completions'],
             step['human_completion']
         ]
+        if not completions:
+            raise Malformed('No completions offered for this step')
         for completion in completions:
             completion_text: str = completion['text']
             if answer_delimiter in completion_text:

@@ -7,7 +7,7 @@ import json
 from typing import Iterable, NamedTuple, List, Optional
 from logging import getLogger, Logger
 from src.prm800k_record import PRMRecord
-from src.convert import make_telescoping_conversation, make_critiques, Sample, GiveUp
+from src.convert import make_telescoping_conversation, make_critiques, Sample, GiveUp, Malformed
 import fnmatch
 
 logger: Logger = getLogger(__file__)
@@ -85,8 +85,7 @@ if __name__ == '__main__':
             ParquetWriter(str(out_all), schema=stepwise_schema) as stepwise_writer,
             ParquetWriter(str(out_answer_only), schema=answer_only_schema) as answer_only_writer,
             ParquetWriter(str(out_critique), schema=critique_schema) as out_critique_writer):
-            # limit to reading 10 lines of the JSONL for now
-            for line_ix, (line, _) in enumerate(zip(file.readlines(), range(3))):
+            for line_ix, line in enumerate(file.readlines()):
                 js: PRMRecord = json.loads(line)
 
                 samples: Iterable[Sample] = make_telescoping_conversation(js)
@@ -104,7 +103,9 @@ if __name__ == '__main__':
                         if answer is not None:
                             final_sample = sample
                 except GiveUp as e:
-                    logger.warning(f'Record at line {line_ix} gave up, at conversation step {sample_ix+1}')
+                    logger.warning(f'[BestResponseOnly] Record at line {line_ix} gave up, at conversation step {sample_ix+1}')
+                except Malformed as e:
+                    logger.warning(f'[BestResponseOnly] Record at line {line_ix} was malformed, at conversation step {sample_ix+1}, error was: {e.args[0]}')
                 
                 if batch.instructions:
                     table = pa.Table.from_arrays(list(batch), schema=stepwise_schema)
@@ -119,15 +120,18 @@ if __name__ == '__main__':
                 samples: Iterable[Sample] = make_critiques(js)
                 batch = CritiqueBatch([], [], [], [], [], [], [], [])
                 instructions, response_lists, next_responses, answers, is_human_responses, is_solutions, is_preferred_responses, ratings = batch
-                for sample_ix, sample in enumerate(samples):
-                    instruction, responses, next_response, answer, is_human_response, is_solution, is_preferred_response, rating = sample
-                    instructions.append(instruction)
-                    response_lists.append(responses)
-                    next_responses.append(next_response)
-                    answers.append(answer)
-                    is_human_responses.append(is_human_response)
-                    is_solutions.append(is_solution)
-                    is_preferred_responses.append(is_preferred_response)
-                    ratings.append(rating)
+                try:
+                    for sample_ix, sample in enumerate(samples):
+                        instruction, responses, next_response, answer, is_human_response, is_solution, is_preferred_response, rating = sample
+                        instructions.append(instruction)
+                        response_lists.append(responses)
+                        next_responses.append(next_response)
+                        answers.append(answer)
+                        is_human_responses.append(is_human_response)
+                        is_solutions.append(is_solution)
+                        is_preferred_responses.append(is_preferred_response)
+                        ratings.append(rating)
+                except Malformed as e:
+                    logger.warning(f'[Critic] Record at line {line_ix} was malformed, at conversation step {sample_ix+1}, error was: {e.args[0]}')
                 table = pa.Table.from_arrays(list(batch), schema=critique_schema)
                 out_critique_writer.write_table(table)
