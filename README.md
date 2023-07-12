@@ -2,7 +2,7 @@
 
 This repository is home to a script for converting OpenAI's [PRM800K](https://github.com/openai/prm800k/tree/main) process supervision dataset to a denormalized format in `.parquet` file type, for easier consumption.
 
-Datasets converted with this tool have been published at [huggingface.co/Birchlabs](https://huggingface.co/Birchlabs).
+Datasets converted with this tool have been published at [huggingface.co/sl-alex](https://huggingface.co/sl-alex).
 
 ## Why would I want process supervision?
 
@@ -21,27 +21,9 @@ The dataset is semantic, so that you can template it into your prompt style howe
 
 In total, the datasets are:
 
-- [Solutions only](https://huggingface.co/datasets/Birchlabs/openai-prm800k-solutions-only)
-  - phase 1
-    - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_train-solutions-only)
-    - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_test-solutions-only)
-  - phase 2
-    - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_train-solutions-only)
-    - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_test-solutions-only)
-- [Stepwise best](https://huggingface.co/datasets/Birchlabs/openai-prm800k-stepwise-best)
-  - phase 1
-    - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_train-stepwise-best)
-    - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_test-stepwise-best)
-  - phase 2
-    - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_train-stepwise-best)
-    - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_test-stepwise-best)
-- [Stepwise critic](https://huggingface.co/datasets/Birchlabs/openai-prm800k-stepwise-critic)
-  - phase 1
-    - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_train-stepwise-critique)
-    - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase1_test-stepwise-critique)
-  - phase 2
-    - [train](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_train-stepwise-critique)
-    - [test](https://huggingface.co/datasets/Birchlabs/openai-prm800k-phase2_test-stepwise-critique)
+- [Solutions only](https://huggingface.co/datasets/sl-alex/openai-prm800k-solutions-only)
+- [Stepwise best](https://huggingface.co/datasets/sl-alex/openai-prm800k-stepwise-best)
+- [Stepwise critic](https://huggingface.co/datasets/sl-alex/openai-prm800k-stepwise-critic)
 
 _You probably just want one of the three combined datasets rather than one of the twelve per-phase splits._
 
@@ -51,9 +33,9 @@ You can load a dataset and iterate through it, like so:
 
 ```python
 from datasets import load_dataset, DatasetDict, Dataset
-# dd: DatasetDict = load_dataset("Birchlabs/openai-prm800k-solutions-only")
-# dd: DatasetDict = load_dataset("Birchlabs/openai-prm800k-stepwise-best")
-dd: DatasetDict = load_dataset("Birchlabs/openai-prm800k-stepwise-critic")
+# dd: DatasetDict = load_dataset("sl-alex/openai-prm800k-solutions-only")
+# dd: DatasetDict = load_dataset("sl-alex/openai-prm800k-stepwise-best")
+dd: DatasetDict = load_dataset("sl-alex/openai-prm800k-stepwise-critic")
 
 d: Dataset = dd['train']
 
@@ -316,7 +298,7 @@ You'd format this the same as stepwise best.
 
 ## Setup
 
-_Note: if you're happy with the [published datasets](https://huggingface.co/Birchlabs), then there's no need for you to get this repository set up yourself — these Setup instructions are for tinkerers who wish to try the export themselves, or change the format_.
+_Note: if you're happy with the [published datasets](https://huggingface.co/sl-alex), then there's no need for you to get this repository set up yourself — these Setup instructions are for tinkerers who wish to try the export themselves, or change the format_.
 
 ### Get OpenAI data
 
