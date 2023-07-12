@@ -15,12 +15,14 @@ schema = pa.schema([
     ('instruction', pa.string()),
     ('responses', pa.list_(pa.string())),
     ('next_response', pa.string()),
+    pa.field('answer', pa.string(), nullable=True),
 ])
 
 class Batch(NamedTuple):
     instructions: List[str]
     response_lists: List[List[str]]
     next_responses: List[str]
+    answers: List[bool]
 
 if __name__ == '__main__':
     script_dir = Path(dirname(realpath(__file__)))
@@ -43,14 +45,15 @@ if __name__ == '__main__':
                 js: PRMRecord = json.loads(line)
 
                 samples: Iterable[Sample] = make_telescoping_conversation(js)
-                batch = Batch([], [], [])
-                instructions, response_lists, next_responses = batch
+                batch = Batch([], [], [], [])
+                instructions, response_lists, next_responses, answers = batch
                 try:
                     for sample_ix, sample in enumerate(samples):
-                        instruction, responses, next_response = sample
+                        instruction, responses, next_response, answer = sample
                         instructions.append(instruction)
                         response_lists.append(responses)
                         next_responses.append(next_response)
+                        answers.append(answer)
                 except GiveUp as e:
                     logger.warning(f'Record at line {line_ix} gave up, at conversation step {sample_ix+1}')
                 
