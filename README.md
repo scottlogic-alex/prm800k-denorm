@@ -1,0 +1,1 @@
+This repository will be home to a script for converting OpenAI's [PRM800K](https://github.com/openai/prm800k/tree/main) process supervision dataset to a denormalized format in `.parquet` file type, for easier consumption.

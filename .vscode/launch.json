@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "name": "Python: Convert",
+      "type": "python",
+      "request": "launch",
+      "module": "scripts.convert",
+      "justMyCode": false
+    }
+  ]
+}
