@@ -7,7 +7,5 @@ if __name__ == '__main__':
     repo_root: Path = script_dir.parent
     out_dir = repo_root.joinpath('out')
 
-    df: DataFrame = read_parquet(str(out_dir.joinpath('example.parquet')))
-
-    for record in df:
-        pass
+    df: DataFrame = read_parquet(str(out_dir.joinpath('phase1_train.parquet')))
+    pass # somewhere to put a breakpoint
