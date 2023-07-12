@@ -21,7 +21,7 @@ class Step(TypedDict):
     chosen_completion: Optional[int]
 
 class Label(TypedDict):
-    finish_reason: Literal['solution']
+    finish_reason: Literal['solution', 'give_up']
     total_time: int
     steps: List[Step]
 

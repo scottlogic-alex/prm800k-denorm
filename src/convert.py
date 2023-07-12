@@ -7,15 +7,16 @@ class Sample(NamedTuple):
     responses: List[str]
     next_response: str
 
-class MalformedRecord(Exception): ...
+class GiveUp(Exception): ...
 
 
 def make_telescoping_conversation(conversation: PRMRecord) -> Generator[Sample, None, None]:
     instruction: str = conversation['question']['problem']
     steps: List[str] = []
     for step in conversation['label']['steps']:
-        if step['chosen_completion'] is None:
-            raise MalformedRecord('no human_completion was provided')
+        if step['chosen_completion'] is None and step['human_completion'] is None:
+            assert conversation['label']['finish_reason'] == 'give_up'
+            raise GiveUp
         steps.append(step['human_completion']['text'] if step['chosen_completion'] is None else step['completions'][step['chosen_completion']]['text'])
         *precursors, latest = steps
         yield Sample(

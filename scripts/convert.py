@@ -7,7 +7,7 @@ import json
 from typing import Iterable, NamedTuple, List
 from logging import getLogger, Logger
 from src.prm800k_record import PRMRecord
-from src.convert import make_telescoping_conversation, Sample, MalformedRecord
+from src.convert import make_telescoping_conversation, Sample, GiveUp
 
 logger: Logger = getLogger(__file__)
 
@@ -51,8 +51,8 @@ if __name__ == '__main__':
                         instructions.append(instruction)
                         response_lists.append(responses)
                         next_responses.append(next_response)
-                except MalformedRecord as e:
-                    logger.warning(f'Record at line {line_ix} was malformed, at conversation step {sample_ix+1}: {e.args[0]}')
+                except GiveUp as e:
+                    logger.warning(f'Record at line {line_ix} gave up, at conversation step {sample_ix+1}')
                 
                 if not batch.instructions:
                     continue
